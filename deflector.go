@@ -69,6 +69,9 @@ func main() {
 			for _, a := range n.Status.Addresses {
 				ipHealth[a.Address] = e.Type != watch.Deleted && !noExecute
 			}
+			if a := n.ObjectMeta.Annotations["io.cilium.network.ipv4-cilium-host"]; a != "" {
+				ipHealth[a] = e.Type != watch.Deleted && !noExecute
+			}
 			mtx.Unlock()
 		case watch.Bookmark:
 		case watch.Error:
