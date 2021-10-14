@@ -59,18 +59,18 @@ func main() {
 			if !ok {
 				continue
 			}
-			noExecute := false
+			drained := false
 			for _, t := range n.Spec.Taints {
-				if t.Effect == corev1.TaintEffectNoExecute {
-					noExecute = true
+				if t.Effect == corev1.TaintEffectNoExecute || t.Effect == corev1.TaintEffectNoSchedule {
+					drained = true
 				}
 			}
 			mtx.Lock()
 			for _, a := range n.Status.Addresses {
-				ipHealth[a.Address] = e.Type != watch.Deleted && !noExecute
+				ipHealth[a.Address] = e.Type != watch.Deleted && !drained
 			}
 			if a := n.ObjectMeta.Annotations["io.cilium.network.ipv4-cilium-host"]; a != "" {
-				ipHealth[a] = e.Type != watch.Deleted && !noExecute
+				ipHealth[a] = e.Type != watch.Deleted && !drained
 			}
 			mtx.Unlock()
 		case watch.Bookmark:
